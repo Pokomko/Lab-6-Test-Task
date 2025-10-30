@@ -1,6 +1,7 @@
 ﻿using Lab6TestTask.Data;
 using Lab6TestTask.Models;
 using Lab6TestTask.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lab6TestTask.Services.Implementations;
 
@@ -19,11 +20,27 @@ public class ProductService : IProductService
 
     public async Task<Product> GetProductAsync()
     {
-        throw new NotImplementedException();
+        var allProducts = _dbContext.Products;
+        
+        return await allProducts
+            .AsNoTracking()
+            .Where(p => p.Status == Enums.ProductStatus.Reserved)
+            .OrderByDescending(p => p.Price)
+            .FirstAsync();
     }
 
     public async Task<IEnumerable<Product>> GetProductsAsync()
     {
-        throw new NotImplementedException();
+        var startDate = new DateTime(2025, 1, 1);
+        var quantity = 1000;
+
+        var allProducts = _dbContext.Products;
+
+        return await allProducts
+            .AsNoTracking()
+            .Where(p => p.ReceivedDate >= startDate && 
+                        p.ReceivedDate < startDate.AddYears(1) &&
+                        p.Quantity > quantity)
+            .ToListAsync();
     }
 }
